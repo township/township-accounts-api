@@ -1,6 +1,6 @@
 var memdb = require('memdb')
 var createApp = require('appa')
-var township = require('./index.js')
+var township = require('../index.js')
 
 module.exports = function testserver (config) {
   var app = createApp()

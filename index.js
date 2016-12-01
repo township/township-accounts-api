@@ -11,7 +11,7 @@ var createMailer = require('./email')
 
 module.exports = function createTownship (config, db) {
   var access = createAccess(db)
-  var jwt = createToken({ secret: config.secret })
+  var jwt = createToken(db, config)
   var auth = createAuth(db, { providers: { basic: basic } })
   var mail = createMailer(config.email)
   var verifyScope = access.verifyScope
@@ -32,10 +32,10 @@ module.exports = function createTownship (config, db) {
     try {
       var token = jwt.verify(creds(req))
     } catch (err) {
-      return cb(err, 400)
+      // ignore
     }
 
-    function createUser () {
+    function createUser (email, password, cb) {
       auth.create({ basic: { email: email, password: password } }, function (err, authData) {
         if (err) return cb(err, 400)
 
@@ -74,7 +74,7 @@ module.exports = function createTownship (config, db) {
 
         return hooks.createUser({}, function (err) {
           if (err) return cb(err, 400)
-          return createUser()
+          return createUser(email, password, cb)
         })
       } else {
         // if token: an admin is creating an account for a user
@@ -86,7 +86,7 @@ module.exports = function createTownship (config, db) {
 
         return hooks.createUser({}, function (err) {
           if (err) return cb(err, 400)
-          return createUser()
+          return createUser(email, password, cb)
         })
       }
     } else if (req.method === 'DELETE') {

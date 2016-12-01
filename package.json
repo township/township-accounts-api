@@ -4,7 +4,7 @@
   "description": "route handlers to use in your REST API to handle user management",
   "main": "index.js",
   "scripts": {
-    "test": "node test.js"
+    "test": "node test/test.js"
   },
   "repository": {
     "type": "git",
@@ -16,5 +16,19 @@
   "bugs": {
     "url": "https://github.com/township/township/issues"
   },
-  "homepage": "https://github.com/township/township#readme"
+  "homepage": "https://github.com/township/township#readme",
+  "dependencies": {
+    "JSONStream": "^1.2.1",
+    "postmark": "^1.3.1",
+    "through2": "^2.0.3",
+    "township-access": "^2.0.0",
+    "township-auth": "^2.0.5",
+    "township-token": "^2.0.0"
+  },
+  "devDependencies": {
+    "appa": "^6.0.0",
+    "memdb": "^1.3.1",
+    "nets": "^3.2.0",
+    "tape": "^4.6.3"
+  }
 }
