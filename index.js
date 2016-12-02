@@ -29,10 +29,26 @@ module.exports = function createTownship (config, db) {
   var township = {}
 
   township.register = function (req, res, ctx, cb) {
-    try {
-      var token = jwt.verify(creds(req))
-    } catch (err) {
-      // ignore
+    var reqToken = creds(req)
+    if (!reqToken) {
+      handleRequest()
+    } else {
+      jwt.verify(creds(req), function (err, token) {
+        if (err) {
+          // ignore
+        }
+        handleRequest(token)
+      })      
+    }
+    
+    function handleRequest (token) {
+      if (req.method === 'POST') {
+        handlePost(token)
+      } else if (req.method === 'DELETE') {
+        return cb(new Error('Method not implemented'), 500)
+      } else {
+        return cb(new Error('Method not allowed'), 405)
+      }
     }
 
     function createUser (email, password, cb) {
@@ -51,8 +67,8 @@ module.exports = function createTownship (config, db) {
         })
       })
     }
-
-    if (req.method === 'POST') {
+    
+    function handlePost (token) {
       if (!ctx.body) {
         return cb(new Error('Server requires email and password properties'), 403)
       }
@@ -89,61 +105,64 @@ module.exports = function createTownship (config, db) {
           return createUser(email, password, cb)
         })
       }
-    } else if (req.method === 'DELETE') {
-      return cb(new Error('Method not implemented'), 500)
-    } else {
-      return cb(new Error('Method not allowed'), 405)
     }
   }
 
-  township.login = function (req, res, ctx) {
+  township.login = function (req, res, ctx, cb) {
     if (req.method === 'POST') {
       if (!ctx.body) {
-        return app.error(res, 400, 'email and password properties required')
+        return cb(new Error('email and password properties required'), 400)
       }
 
       var email = ctx.body.email
       var password = ctx.body.password
 
       if (!email) {
-        return app.error(res, 400, 'email property required')
+        return cb(new Error('email property required'), 400)
       } else if (!password) {
-        return app.error(res, 400, 'password property required')
+        return cb(new Error('password property required'), 400)
       }
 
       auth.verify('basic', { email: email, password: password }, function (err, authData) {
-        if (err) return app.error(res, 400, err.message)
+        if (err) return cb(err, 400)
 
         access.get(authData.key, function (err, accessData) {
-          if (err) return app.error(res, 400, err.message)
+          if (err) return cb(err, 400)
 
           var token = jwt.sign({
             auth: authData,
             access: accessData
           })
 
-          app.send(res, 200, { key: authData.key, token: token })
+          cb(null, 200, {key: authData.key, token: token})
         })
       })
     } else {
-      app.error(res, 405, 'Method not allowed')
+      cb(new Error('Method not allowed'), 405)
     }
   }
 
-  township.password = function (req, res, ctx) {
+  township.updatePassword = function (req, res, ctx, cb) {
     if (req.method === 'POST') {
-      var token = jwt.verify(creds(req))
-
-      if (!token) {
-        return app.error(res, 400, 'token auth required')
-      }
-
+      var rawToken = creds(req)
+      jwt.verify(rawToken, function (err, token) {
+        if (err) return cb(err, 400)
+        if (!token) {
+          return cb(new Error('token auth required'), 400)
+        }
+        handlePost(token)
+      })
+    } else {
+      cb(new Error('Method not allowed'), 405)
+    }
+    
+    function handlePost (token) {
       if (!ctx.body.password) {
-        return app.error(res, 400, 'password property required')
+        return cb(new Error('password property required'), 400)
       } else if (!ctx.body.newPassword) {
-        return app.error(res, 400, 'newPassword property required')
+        return cb(new Error('newPassword property required'), 400)
       } else if (!ctx.body.email) {
-        return app.error(res, 400, 'email property required')
+        return cb(new Error('email property required'), 400)
       }
 
       var email = ctx.body.email
@@ -151,19 +170,30 @@ module.exports = function createTownship (config, db) {
       var newPassword = ctx.body.newPassword
 
       auth.verify('basic', { email: email, password: password }, function (err, authData) {
-        if (err) return app.error(res, 400, err.message)
+        if (err) return cb(err, 400)
 
         auth.update({
-          key: token.authData.key,
+          key: token.auth.key,
           basic: { email: email, password: newPassword }
         }, function (err, authData) {
-          if (err) return app.error(res, 400, err.message)
-          token.authData = authData
-          app.send(res, 200, { key: authData.key, token: jwt.sign(token) })
+          if (err) return cb(err, 400)
+          
+          access.create(token.auth.key, ['api:access'], function (err, accessData) {
+            if (err) return cb(err, 400)
+
+            var newToken = jwt.sign({
+              auth: authData,
+              access: accessData
+            })
+            
+            jwt.invalidate(rawToken, function (err) {
+              if (err) return cb(err, 400)
+              cb(null, 200, { key: authData.key, token: newToken })              
+            })
+          })
+
         })
       })
-    } else {
-      app.error(res, 405, 'Method not allowed')
     }
   }
   

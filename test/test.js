@@ -34,6 +34,7 @@ wbTy8LQGY2K/UnvlE/+ZOFZbVu5KOkh2wnzIFFG1
 
 var app = createApp(creds)
 var server = http.createServer(app)
+var token
 
 test('start test server', function (t) {
   server.listen(creds.port, function (err) {
@@ -51,9 +52,52 @@ test('register', function (t) {
   }
   nets({url: root + '/register', method: 'POST', json: json}, function (err, resp, body) {
     t.ifErr(err)
-    console.log(resp.statusCode, body)
     t.equals(resp.statusCode, 201, '201 created user')
     t.ok(body.token, 'got token in response')
+    t.end()
+  })
+})
+
+test('login', function (t) {
+  var json = {
+    "email": "foo@example.com",
+    "password": "foobar"
+  }
+  nets({url: root + '/login', method: 'POST', json: json}, function (err, resp, body) {
+    t.ifErr(err)
+    t.equals(resp.statusCode, 200, '200 got token')
+    t.ok(body.token, 'got token in response')
+    token = body.token
+    t.end()
+  })
+})
+
+test('change pw', function (t) {
+  var json = {
+    "email": "foo@example.com",
+    "password": "foobar",
+    "newPassword": "tacobar"
+  }
+  var headers = {authorization: 'Bearer ' + token}
+  nets({url: root + '/updatepassword', method: 'POST', json: json, headers: headers}, function (err, resp, body) {
+    t.ifErr(err)
+    t.equals(resp.statusCode, 200, '200 got token')
+    t.ok(body.token, 'got token in response')
+    token = body.token
+    t.end()
+  })
+})
+
+test('login with new pw', function (t) {
+  var json = {
+    "email": "foo@example.com",
+    "password": "tacobar"
+  }
+  nets({url: root + '/login', method: 'POST', json: json}, function (err, resp, body) {
+    t.ifErr(err)
+    t.equals(resp.statusCode, 200, '200 got token')
+    t.ok(body.token, 'got token in response')
+    token = body.token
     t.end()
   })
 })
