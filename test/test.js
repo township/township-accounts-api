@@ -1,6 +1,5 @@
 var test = require('tape')
 var nets = require('nets')
-var createClient = require('../')
 var createApp = require('./test-server.js')
 var http = require('http')
 
@@ -47,8 +46,8 @@ var root = creds.host + ':' + creds.port
 
 test('register', function (t) {
   var json = {
-    "email": "foo@example.com",
-    "password": "foobar"
+    'email': 'foo@example.com',
+    'password': 'foobar'
   }
   nets({url: root + '/register', method: 'POST', json: json}, function (err, resp, body) {
     t.ifErr(err)
@@ -60,8 +59,8 @@ test('register', function (t) {
 
 test('login', function (t) {
   var json = {
-    "email": "foo@example.com",
-    "password": "foobar"
+    'email': 'foo@example.com',
+    'password': 'foobar'
   }
   nets({url: root + '/login', method: 'POST', json: json}, function (err, resp, body) {
     t.ifErr(err)
@@ -74,9 +73,9 @@ test('login', function (t) {
 
 test('change pw', function (t) {
   var json = {
-    "email": "foo@example.com",
-    "password": "foobar",
-    "newPassword": "tacobar"
+    'email': 'foo@example.com',
+    'password': 'foobar',
+    'newPassword': 'tacobar'
   }
   var headers = {authorization: 'Bearer ' + token}
   nets({url: root + '/updatepassword', method: 'POST', json: json, headers: headers}, function (err, resp, body) {
@@ -90,8 +89,8 @@ test('change pw', function (t) {
 
 test('login with new pw', function (t) {
   var json = {
-    "email": "foo@example.com",
-    "password": "tacobar"
+    'email': 'foo@example.com',
+    'password': 'tacobar'
   }
   nets({url: root + '/login', method: 'POST', json: json}, function (err, resp, body) {
     t.ifErr(err)
@@ -107,26 +106,6 @@ test('stop test server', function (t) {
     server.close(function () {
       t.ok(true, 'closed')
       t.end()
-    })    
+    })
   })
 })
-
-//
-// test('login', function (t) {
-//   var json = {
-//     "client_id": creds.id,
-//     "connection": creds.connection,
-//     "grant_type": "password",
-//     "username": "foo",
-//     "password": "foobar",
-//     "scope": "openid"
-//   }
-//   nets({url: root + '/oauth/ro', method: 'POST', json: json}, function (err, resp, body) {
-//     t.ifErr(err)
-//     t.equals(resp.statusCode, 200, 'logged in OK')
-//     t.ok(body.id_token, 'got id_token')
-//     t.ok(body.access_token, 'got access_token')
-//     t.equals(body.token_type, 'bearer', 'is bearer type')
-//     t.end()
-//   })
-// })

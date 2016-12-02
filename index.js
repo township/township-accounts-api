@@ -1,19 +1,16 @@
-var path = require('path')
-var JSONStream = require('JSONStream')
-var through = require('through2')
 var createAuth = require('township-auth')
 var basic = require('township-auth/basic')
 var createAccess = require('township-access')
 var createToken = require('township-token')
 
 var creds = require('./creds')
-var createMailer = require('./email')
+// var createMailer = require('./email')
 
 module.exports = function createTownship (config, db) {
   var access = createAccess(db)
   var jwt = createToken(db, config)
   var auth = createAuth(db, { providers: { basic: basic } })
-  var mail = createMailer(config.email)
+  // var mail = createMailer(config.email)
   var verifyScope = access.verifyScope
   var hooks = config.hooks || {}
   hooks.createUser = hooks.createUser || noop
@@ -25,7 +22,7 @@ module.exports = function createTownship (config, db) {
     useAPIScope = config.requiredScopes.useAPI
     createUserScope = config.requiredScopes.createUser
   }
-  
+
   var township = {}
 
   township.register = function (req, res, ctx, cb) {
@@ -38,9 +35,9 @@ module.exports = function createTownship (config, db) {
           // ignore
         }
         handleRequest(token)
-      })      
+      })
     }
-    
+
     function handleRequest (token) {
       if (req.method === 'POST') {
         handlePost(token)
@@ -67,7 +64,7 @@ module.exports = function createTownship (config, db) {
         })
       })
     }
-    
+
     function handlePost (token) {
       if (!ctx.body) {
         return cb(new Error('Server requires email and password properties'), 403)
@@ -155,7 +152,7 @@ module.exports = function createTownship (config, db) {
     } else {
       cb(new Error('Method not allowed'), 405)
     }
-    
+
     function handlePost (token) {
       if (!ctx.body.password) {
         return cb(new Error('password property required'), 400)
@@ -171,13 +168,12 @@ module.exports = function createTownship (config, db) {
 
       auth.verify('basic', { email: email, password: password }, function (err, authData) {
         if (err) return cb(err, 400)
-
         auth.update({
           key: token.auth.key,
           basic: { email: email, password: newPassword }
         }, function (err, authData) {
           if (err) return cb(err, 400)
-          
+
           access.create(token.auth.key, ['api:access'], function (err, accessData) {
             if (err) return cb(err, 400)
 
@@ -185,18 +181,17 @@ module.exports = function createTownship (config, db) {
               auth: authData,
               access: accessData
             })
-            
+
             jwt.invalidate(rawToken, function (err) {
               if (err) return cb(err, 400)
-              cb(null, 200, { key: authData.key, token: newToken })              
+              cb(null, 200, { key: authData.key, token: newToken })
             })
           })
-
         })
       })
     }
   }
-  
+
   return township
 }
 
