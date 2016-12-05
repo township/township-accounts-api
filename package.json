@@ -1,6 +1,6 @@
 {
   "name": "township",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "route handlers to use in your REST API to handle user management",
   "main": "index.js",
   "scripts": {
