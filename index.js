@@ -141,19 +141,15 @@ module.exports = function createTownship (config, db) {
 
   township.updatePassword = function (req, res, ctx, cb) {
     if (req.method === 'POST') {
-      var rawToken = creds(req)
-      jwt.verify(rawToken, function (err, token) {
+      township.verify(req, res, function (err, token, rawToken) {
         if (err) return cb(err, 400)
-        if (!token) {
-          return cb(new Error('token auth required'), 400)
-        }
-        handlePost(token)
+        handlePost(token, rawToken)
       })
     } else {
       cb(new Error('Method not allowed'), 405)
     }
 
-    function handlePost (token) {
+    function handlePost (token, rawToken) {
       if (!ctx.body.password) {
         return cb(new Error('password property required'), 400)
       } else if (!ctx.body.newPassword) {
@@ -190,6 +186,17 @@ module.exports = function createTownship (config, db) {
         })
       })
     }
+  }
+
+  township.verify = function (req, res, cb) {
+    var rawToken = creds(req)
+    jwt.verify(rawToken, function (err, token) {
+      if (err) return cb(err)
+      if (!token) {
+        return cb(new Error('token auth required'))
+      }
+      cb(null, token, rawToken)
+    })
   }
 
   return township

@@ -82,6 +82,7 @@ test('change pw', function (t) {
     t.ifErr(err)
     t.equals(resp.statusCode, 200, '200 got token')
     t.ok(body.token, 'got token in response')
+    t.notEqual(token, body.token, 'new token is diff from old token')
     token = body.token
     t.end()
   })
@@ -96,7 +97,21 @@ test('login with new pw', function (t) {
     t.ifErr(err)
     t.equals(resp.statusCode, 200, '200 got token')
     t.ok(body.token, 'got token in response')
+    t.equal(token, body.token, 'login token is token from after changing pw')
     token = body.token
+    t.end()
+  })
+})
+
+
+test('verify a token', function (t) {
+  var headers = {
+    "Authorization": "Bearer " + token
+  }
+  nets({url: root + '/verifytoken', method: 'GET', headers: headers, json: true}, function (err, resp, body) {
+    t.ifErr(err)
+    t.equals(resp.statusCode, 200, '200 OK')
+    t.equals(body.message, 'Token is valid', 'token is valid')
     t.end()
   })
 })
