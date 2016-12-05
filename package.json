@@ -23,7 +23,7 @@
     "through2": "^2.0.3",
     "township-access": "^2.0.0",
     "township-auth": "^2.0.5",
-    "township-token": "^2.0.0"
+    "township-token": "^2.1.0"
   },
   "devDependencies": {
     "appa": "^5.0.0",

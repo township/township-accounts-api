@@ -56,6 +56,20 @@ creates a new instance
   - `email` (Object) - used to send emails with postmark
   - `email.fromEmail` (String) - from address
   - `email.postmarkAPIKey` (String)
+  
+### ship.verify(req, res, cb)
+
+given a `request` and `response`, decodes and verifies the token in the authorization header and calls `cb` with the result
+
+pass `req`, `res` from your http server. the request is expected to have an `Authorization: Bearer <token>` header.
+
+`cb` will be called with `(error, decodedToken, rawToken)`.
+
+`error` will be called if the token is missing from the request or had a problem being verified
+
+`decodedToken` is a JS object with the result of `jwt.verify`.
+
+`rawToken` is a string containing the encoded token value received from the request header
 
 ### ship.register(req, res, ctx, cb)
 

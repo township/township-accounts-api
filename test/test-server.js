@@ -32,7 +32,12 @@ module.exports = function testserver (config) {
   app.on('/verifytoken', function (req, res, ctx) {
     ship.verify(req, res, function (err, token, rawToken) {
       if (err) return app.error(res, 400, err.message)
-      app.send(res, 200, {message: 'Token is valid'})
+      var body = {
+        token: token,
+        message: 'Token is valid',
+        rawToken: rawToken
+      }
+      app.send(res, 200, body)
     })
   })
 
