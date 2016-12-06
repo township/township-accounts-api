@@ -117,6 +117,15 @@ test('verify a token', function (t) {
   })
 })
 
+test('require authorization header', function (t) {
+  var headers = {}
+  nets({url: root + '/verifytoken', method: 'GET', headers: headers, json: true}, function (err, resp, body) {
+    t.ifErr(err)
+    t.equals(resp.statusCode, 400, '400 status response')
+    t.end()
+  })
+})
+
 test('stop test server', function (t) {
   app.db.close(function () {
     server.close(function () {
