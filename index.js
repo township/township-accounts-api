@@ -190,7 +190,7 @@ module.exports = function createTownship (config, db) {
 
   township.verify = function (req, res, cb) {
     var rawToken = creds(req)
-    if (!rawToken) return cb('token auth required')
+    if (!rawToken) return cb(new Error('token auth required'))
 
     jwt.verify(rawToken, function (err, token) {
       if (err) return cb(err)
