@@ -50,6 +50,20 @@ module.exports = function createTownship (db, config) {
     }
   }
 
+  township.destroy = function (req, res, ctx, callback) {
+    if (req.method === 'DELETE') {
+      township.verify(req, function (err, tokenData, token) {
+        if (err) return callback(err)
+        accounts.destroy(tokenData.auth.key, function (err) {
+          if (err) return callback(err)
+          return callback(null, 200)
+        })
+      })
+    } else {
+      callback(new Error('Method not allowed'), 405)
+    }
+  }
+
   township.updatePassword = function (req, res, ctx, callback) {
     if (req.method === 'POST') {
       township.verify(req, function (err, token, rawToken) {

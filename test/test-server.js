@@ -25,6 +25,20 @@ module.exports = function testserver (config) {
     })
   })
 
+  app.on('/logout', function (req, res, ctx) {
+    ship.logout(req, res, ctx, function (err, code, data) {
+      if (err) return error(code, err.message).pipe(res)
+      send(code, data).pipe(res)
+    })
+  })
+
+  app.on('/destroy', function (req, res, ctx) {
+    ship.destroy(req, res, ctx, function (err, code, data) {
+      if (err) return error(code, err.message).pipe(res)
+      send(code, data).pipe(res)
+    })
+  })
+
   app.on('/updatepassword', function (req, res, ctx) {
     ship.updatePassword(req, res, ctx, function (err, code, data) {
       if (err) return error(code, err.message).pipe(res)
