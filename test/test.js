@@ -126,6 +126,28 @@ test('require authorization header', function (t) {
   })
 })
 
+test('log out', function (t) {
+  var headers = {
+    'Authorization': 'Bearer ' + token
+  }
+  nets({url: root + '/logout', method: 'POST', header: headers, json: true}, function (err, resp, body) {
+    t.ifErr(err)
+    t.equals(resp.statusCode, 200, '200 status response')
+    t.end()
+  })
+})
+
+test('destroy account', function (t) {
+  var headers = {
+    'Authorization': 'Bearer ' + token
+  }
+  nets({url: root + '/destroy', method: 'DELETE', header: headers, json: true}, function (err, resp, body) {
+    t.ifErr(err)
+    t.equals(resp.statusCode, 200, '200 status response')
+    t.end()
+  })
+})
+
 test('stop test server', function (t) {
   app.db.close(function () {
     server.close(function () {
