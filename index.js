@@ -43,7 +43,7 @@ module.exports = function createTownship (db, config) {
 
       accounts.logout(token, function (err) {
         if (err) return callback(err)
-        return callback(null, 200)
+        return callback(null, 200, { message: 'account logged out' })
       })
     } else {
       callback(new Error('Method not allowed'), 405)
@@ -56,7 +56,7 @@ module.exports = function createTownship (db, config) {
         if (err) return callback(err)
         accounts.destroy(tokenData.auth.key, function (err) {
           if (err) return callback(err)
-          return callback(null, 200)
+          return callback(null, 200, { message: 'account destroyed' })
         })
       })
     } else {
