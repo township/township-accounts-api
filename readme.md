@@ -8,7 +8,7 @@ route handlers to use in your REST API to handle user management
 var township = require('township')
 var db = require('memdb') // can be any levelup e.g. level-party or level
 var config = require('./your-config')
-var ship = township(config, db)
+var ship = township(db, config)
 
 // now you can use `ship` to handle (req, res) route handlers
 ```
@@ -25,7 +25,7 @@ var config = require('./your-config')
 
 var app = createAppa()
 var db = memdb()
-var ship = township(config, db)
+var ship = township(db, config)
 
 app.on('/register', function (req, res, ctx) {
   // appa provides `ctx` for us in the way we want out of the box
@@ -44,7 +44,7 @@ see also `test-server.js`
 
 returns a constructor you can use to make multiple instances
 
-### var ship = township(config, db)
+### var ship = township(db, config)
 
 creates a new instance
 
@@ -57,11 +57,11 @@ creates a new instance
   - `email.fromEmail` (String) - from address
   - `email.postmarkAPIKey` (String)
   
-### ship.verify(req, res, cb)
+### ship.verify(req, cb)
 
-given a `request` and `response`, decodes and verifies the token in the authorization header and calls `cb` with the result
+given a `request`, decodes and verifies the token in the authorization header and calls `cb` with the result
 
-pass `req`, `res` from your http server. the request is expected to have an `Authorization: Bearer <token>` header.
+pass `req` from your http server. the request is expected to have an `Authorization: Bearer <token>` header.
 
 `cb` will be called with `(error, decodedToken, rawToken)`.
 
