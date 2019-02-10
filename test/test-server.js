@@ -1,7 +1,7 @@
 var memdb = require('memdb')
 var createApp = require('appa-api')
-var send = require('appa/send')
-var error = require('appa/error')
+var send = require('appa-api/send')
+var error = require('appa-api/error')
 
 var TownshipAccountsApi = require('../index.js')
 
@@ -41,7 +41,6 @@ module.exports = function testserver (config) {
 
   app.on('/updatepassword', function (req, res, ctx) {
     ship.updatePassword(req, res, ctx, function (err, code, data) {
-      console.log('updatePassword', err, code, data)
       if (err) return error(res, code, err.message)
       send(res, code, data)
     })

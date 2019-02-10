@@ -79,7 +79,6 @@ test('change pw', function (t) {
   }
   var headers = { authorization: 'Bearer ' + token }
   nets({ url: root + '/updatepassword', method: 'POST', json: json, headers: headers }, function (err, resp, body) {
-    console.log('change pw', err, body)
     t.ifErr(err)
     t.equals(resp.statusCode, 200, '200 got token')
     t.ok(body.token, 'got token in response')
@@ -131,7 +130,7 @@ test('log out', function (t) {
   var headers = {
     'Authorization': 'Bearer ' + token
   }
-  nets({ url: root + '/logout', method: 'POST', header: headers, json: true }, function (err, resp, body) {
+  nets({ url: root + '/logout', method: 'POST', headers: headers, json: true }, function (err, resp, body) {
     t.ifErr(err)
     t.equals(resp.statusCode, 200, '200 status response')
     t.end()
@@ -139,13 +138,21 @@ test('log out', function (t) {
 })
 
 test('destroy account', function (t) {
-  var headers = {
-    'Authorization': 'Bearer ' + token
+  var json = {
+    'email': 'foo@example.com',
+    'password': 'tacobar'
   }
-  nets({ url: root + '/destroy', method: 'DELETE', header: headers, json: true }, function (err, resp, body) {
+  nets({ url: root + '/login', method: 'POST', json: json }, function (err, resp, body) {
     t.ifErr(err)
-    t.equals(resp.statusCode, 200, '200 status response')
-    t.end()
+
+    var headers = {
+      'Authorization': 'Bearer ' + body.token
+    }
+    nets({ url: root + '/destroy', method: 'DELETE', headers: headers, json: true }, function (err, resp, body) {
+      t.ifErr(err)
+      t.equals(resp.statusCode, 200, '200 status response')
+      t.end()
+    })
   })
 })
 
