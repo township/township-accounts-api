@@ -1,60 +1,61 @@
 var memdb = require('memdb')
-var createApp = require('appa')
+var createApp = require('appa-api')
 var send = require('appa/send')
 var error = require('appa/error')
 
-var township = require('../index.js')
+var TownshipAccountsApi = require('../index.js')
 
 module.exports = function testserver (config) {
-  var app = createApp({log: {level: 'silent'}})
+  var app = createApp({ log: { level: 'silent' } })
   var db = memdb()
   app.db = db
-  var ship = township(db, config)
+  var ship = new TownshipAccountsApi(db, config)
 
   app.on('/register', function (req, res, ctx) {
     ship.register(req, res, ctx, function (err, code, data) {
-      if (err) return error(code, err.message).pipe(res)
-      send(code, data).pipe(res)
+      if (err) return error(res, code, err.message)
+      send(res, code, data)
     })
   })
 
   app.on('/login', function (req, res, ctx) {
     ship.login(req, res, ctx, function (err, code, data) {
-      if (err) return error(code, err.message).pipe(res)
-      send(code, data).pipe(res)
+      if (err) return error(res, code, err.message)
+      send(res, code, data)
     })
   })
 
   app.on('/logout', function (req, res, ctx) {
     ship.logout(req, res, ctx, function (err, code, data) {
-      if (err) return error(code, err.message).pipe(res)
-      send(code, data).pipe(res)
+      if (err) return error(res, code, err.message)
+      send(res, code, data)
     })
   })
 
   app.on('/destroy', function (req, res, ctx) {
     ship.destroy(req, res, ctx, function (err, code, data) {
-      if (err) return error(code, err.message).pipe(res)
-      send(code, data).pipe(res)
+      if (err) return error(res, code, err.message)
+      send(res, code, data)
     })
   })
 
   app.on('/updatepassword', function (req, res, ctx) {
     ship.updatePassword(req, res, ctx, function (err, code, data) {
-      if (err) return error(code, err.message).pipe(res)
-      send(code, data).pipe(res)
+      console.log('updatePassword', err, code, data)
+      if (err) return error(res, code, err.message)
+      send(res, code, data)
     })
   })
 
   app.on('/verifytoken', function (req, res, ctx) {
     ship.verify(req, function (err, token, rawToken) {
-      if (err) return error(400, err.message).pipe(res)
+      if (err) return error(res, 400, err.message)
       var body = {
         token: token,
         message: 'Token is valid',
         rawToken: rawToken
       }
-      send(200, body).pipe(res)
+      send(res, 200, body)
     })
   })
 

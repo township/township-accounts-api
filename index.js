@@ -1,20 +1,19 @@
-var createAccounts = require('township-accounts')
+const TownshipAccounts = require('township-accounts')
 
-module.exports = function createTownship (db, config) {
-  var accounts = createAccounts(db, config)
-
-  var township = {
-    accounts: accounts
+class TownshipAccountsAPI {
+  constructor (leveldb, config) {
+    this.accounts = new TownshipAccounts(leveldb, config)
   }
 
-  township.register = function (req, res, ctx, callback) {
-    if (!ctx || !ctx.body) {
-      return callback(new Error('ctx.body.email and ctx.body.password properties required'), 400)
+  register (req, res, context, callback) {
+    if (!context || !context.body || !context.body.email || !context.body.password) {
+      return callback(new Error('context.body.email and context.body.password properties required'), 400)
     }
 
     if (req.method === 'POST') {
-      return accounts.register(ctx.body, function (err, account) {
+      return this.accounts.register(context.body, function (err, account) {
         if (err) return callback(err)
+
         return callback(null, 201, account)
       })
     } else {
@@ -22,14 +21,15 @@ module.exports = function createTownship (db, config) {
     }
   }
 
-  township.login = function (req, res, ctx, callback) {
-    if (!ctx || !ctx.body) {
-      return callback(new Error('ctx.body.email and ctx.body.password properties required'), 400)
+  login (req, res, context, callback) {
+    if (!context || !context.body) {
+      return callback(new Error('context.body.email and context.body.password properties required'), 400)
     }
 
     if (req.method === 'POST') {
-      accounts.login(ctx.body, function (err, account) {
+      this.accounts.login(context.body, function (err, account) {
         if (err) return callback(err)
+
         return callback(null, 200, account)
       })
     } else {
@@ -37,12 +37,13 @@ module.exports = function createTownship (db, config) {
     }
   }
 
-  township.logout = function (req, res, ctx, callback) {
+  logout (req, res, context, callback) {
     if (req.method === 'POST') {
-      var token = township.getToken(req)
+      const token = this.getToken(req)
 
-      accounts.logout(token, function (err) {
+      this.accounts.logout(token, function (err) {
         if (err) return callback(err)
+
         return callback(null, 200, { message: 'account logged out' })
       })
     } else {
@@ -50,12 +51,16 @@ module.exports = function createTownship (db, config) {
     }
   }
 
-  township.destroy = function (req, res, ctx, callback) {
+  destroy (req, res, context, callback) {
+    var self = this
+
     if (req.method === 'DELETE') {
-      township.verify(req, function (err, tokenData, token) {
+      this.verify(req, function (err, tokenData, token) {
         if (err) return callback(err)
-        accounts.destroy(tokenData.auth.key, function (err) {
+
+        self.accounts.destroy(tokenData.auth.key, function (err) {
           if (err) return callback(err)
+
           return callback(null, 200, { message: 'account destroyed' })
         })
       })
@@ -64,13 +69,18 @@ module.exports = function createTownship (db, config) {
     }
   }
 
-  township.updatePassword = function (req, res, ctx, callback) {
+  updatePassword (req, res, context, callback) {
+    var self = this
+
     if (req.method === 'POST') {
-      township.verify(req, function (err, token, rawToken) {
+      this.verify(req, function (err, token, rawToken) {
         if (err) return callback(err, 400)
-        ctx.body.token = rawToken
-        accounts.updatePassword(ctx.body, function (err, account) {
+
+        context.body.token = rawToken
+
+        self.accounts.updatePassword(context.body, function (err, account) {
           if (err) return callback(err, 400)
+
           return callback(null, 200, account)
         })
       })
@@ -79,24 +89,28 @@ module.exports = function createTownship (db, config) {
     }
   }
 
-  township.verify = function verify (req, callback) {
-    var token = township.getToken(req)
+  verify (req, callback) {
+    var self = this
+    const token = this.getToken(req)
 
-    accounts.verifyToken(token, function (err, tokenData, token) {
+    this.accounts.verifyToken(token, function (err, tokenData, token) {
       if (err) return callback(err)
-      accounts.findByEmail(tokenData.auth.basic.email, function (err, account) {
+
+      self.accounts.findByEmail(tokenData.auth.basic.email, function (err, account) {
         if (err) return callback(new Error('Account not found'))
+
         callback(null, tokenData, token)
       })
     })
   }
 
-  township.getToken = function getToken (req) {
-    var authHeader = req.headers.authorization
+  getToken (req) {
+    const authHeader = req.headers.authorization
+
     if (authHeader && authHeader.indexOf('Bearer') > -1) {
       return authHeader.split('Bearer ')[1]
     }
   }
-
-  return township
 }
+
+module.exports = TownshipAccountsAPI

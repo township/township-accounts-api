@@ -1,6 +1,6 @@
 {
-  "name": "township",
-  "version": "2.0.0",
+  "name": "township-accounts-api",
+  "version": "0.0.0",
   "description": "route handlers to use in your REST API to handle user management",
   "main": "index.js",
   "scripts": {
@@ -8,26 +8,28 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/township/township.git"
+    "url": "git+https://github.com/township/township-accounts-api.git"
   },
-  "keywords": [],
-  "author": "Max Ogden",
-  "license": "ISC",
+  "keywords": [
+    "township",
+    "auth",
+    "authentication",
+    "accounts",
+    "users"
+  ],
+  "license": "MIT",
   "bugs": {
-    "url": "https://github.com/township/township/issues"
+    "url": "https://github.com/township/township-accounts-api/issues"
   },
-  "homepage": "https://github.com/township/township#readme",
+  "homepage": "https://github.com/township/township-accounts-api#readme",
   "dependencies": {
-    "township-accounts": "^4.0.2"
+    "township-accounts": "github:township/township-accounts"
   },
   "devDependencies": {
-    "appa": "^6.0.0",
+    "appa-api": "^8.0.0",
     "memdb": "^1.3.1",
     "nets": "^3.2.0",
-    "standard": "^8.6.0",
-    "tape": "^4.6.3"
-  },
-  "directories": {
-    "test": "test"
+    "standard": "^12.0.1",
+    "tape": "^4.10.0"
   }
 }

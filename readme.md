@@ -1,14 +1,14 @@
-# township
+# township-accounts-api
 
 route handlers to use in your REST API to handle user management
 
 ## quick start
 
 ```js
-var township = require('township')
+var Township = require('township-accounts-api')
 var db = require('memdb') // can be any levelup e.g. level-party or level
 var config = require('./your-config')
-var ship = township(db, config)
+var ship = new Township(db, config)
 
 // now you can use `ship` to handle (req, res) route handlers
 ```
@@ -20,12 +20,12 @@ here's an example using the `require('appa')` REST server module
 ```js
 var memdb = require('memdb')
 var createAppa = require('appa')
-var township = require('township')
+var Township = require('township-accounts-api')
 var config = require('./your-config')
 
 var app = createAppa()
 var db = memdb()
-var ship = township(db, config)
+var ship = new Township(db, config)
 
 app.on('/register', function (req, res, ctx) {
   // appa provides `ctx` for us in the way we want out of the box
@@ -40,11 +40,11 @@ see also `test-server.js`
 
 ## API
 
-### var township = require('township')
+### var Township = require('township-accounts-api')
 
 returns a constructor you can use to make multiple instances
 
-### var ship = township(db, config)
+### var ship = new Township(db, config)
 
 creates a new instance
 
